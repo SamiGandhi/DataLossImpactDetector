@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
-
 # the seed function is used to generate the same random series each time the code runs
 np.random.seed(123)
 
@@ -53,7 +52,7 @@ def simulate_noises(image):
             image[x1:x2, y1:y2, :] = (0, 0, 0)
         # gaussian noise to simulate transmission noise
         image = cv2.GaussianBlur(image, (3, 3), noise_level)
-        element = "noise_level"+str(i), image
+        element = "noise_level" + str(i), image
         generated_images.append(element)
     # the generated image is an array that contains the entered image with 10 levels of data loss and noises
     return generated_images
@@ -64,7 +63,7 @@ def get_ref_images(ref_images_directory):
     i = 0
     for ref_image_path in ref_images_directory:
         img = cv2.imread(ref_image_path)
-        element = "Ref_Image"+str(i), img
+        element = "Ref_Image" + str(i), img
         result.append(element)
     return result
 
@@ -74,7 +73,7 @@ def get_test_images(ref_images_directory):
     i = 0
     for ref_image_path in ref_images_directory:
         img = cv2.imread(ref_image_path)
-        element = "Test_Image"+str(i), img
+        element = "Test_Image" + str(i), img
         result.append(element)
     return result
 
@@ -97,19 +96,19 @@ def match_features(ref_images_kp_desc_array, noises_levels_kp_desc_array):
     result = []
     for ref_images_kp_desc in ref_images_kp_desc_array:
         # extract the descriptors
-        name , ref_image, ref_kp_sift, ref_descr_sift, ref_kp_kaze, ref_descr_kaze, \
+        name, ref_image, ref_kp_sift, ref_descr_sift, ref_kp_kaze, ref_descr_kaze, \
         ref_kp_akaze, ref_descr_akaze, ref_kp_orb, ref_descr_orb = ref_images_kp_desc
 
         for noise_image_kp_descr in noises_levels_kp_desc_array:
             # extract the descriptors
-            name, noise_image, noise_kp_sift, noise_descr_sift, noise_kp_kaze, noise_descr_kaze,\
+            name, noise_image, noise_kp_sift, noise_descr_sift, noise_kp_kaze, noise_descr_kaze, \
             noise_kp_akaze, noise_descr_akaze, noise_kp_orb, noise_descr_orb = noise_image_kp_descr
             matches_sift = bf.match(ref_descr_sift, noise_descr_sift)
             matches_kaze = bf.match(ref_descr_kaze, noise_descr_kaze)
             matches_akaze = bf.match(ref_descr_akaze, noise_descr_akaze)
             matches_orb = bf.match(ref_descr_orb, noise_descr_orb)
             # add the matches into the result array
-            element = ref_images_kp_desc,noise_image_kp_descr,matches_sift, matches_kaze, matches_akaze, matches_orb
+            element = ref_images_kp_desc, noise_image_kp_descr, matches_sift, matches_kaze, matches_akaze, matches_orb
             result.append(element)
 
     return result
@@ -153,39 +152,118 @@ def counting_object(ref_kp, test_kp, good_matches):
     num_positive_matches = mask.sum()
     return num_positive_matches
 
-def plot_results():
-    return None
 
+def plot_results(positives):
+    n = 0
+    i = 0
+    x = []
+    y_sift_features = []
+    y_kaze_features = []
+    y_akaze_features = []
+    y_orb_features = []
+
+    y_sift_all_matches = []
+    y_sift_positive_matches = []
+    y_kaze_all_matches = []
+    y_kaze_positive_matches = []
+    y_akze_all_matches = []
+    y_akaze_positive_matches = []
+    y_orb_all_matches = []
+    y_orb_positive_matches = []
+
+    for positive in positives:
+        matches, num_positive_matches_sift, num_positive_matches_kaze, num_positive_matches_akaze, num_positive_matches_orb = positive
+        ref_images_kp_desc, noise_image_kp_descr, matches_sift, matches_kaze, matches_akaze, matches_orb = matches
+        name, noise_image, noise_kp_sift, noise_descr_sift, noise_kp_kaze, noise_descr_kaze, noise_kp_akaze, noise_descr_akaze, noise_kp_orb, noise_descr_orb = noise_image_kp_descr = noise_image_kp_descr
+        print("Noise Image: -> " + str(name))
+        x.append(i)
+        print("    SIFT FEATURES: -> " + str(len(noise_kp_sift)))
+        y_sift_features.append(len(noise_kp_sift))
+        print("    KAZE FEATURES: -> " + str(len(noise_kp_kaze)))
+        y_kaze_features.append(len(noise_kp_kaze))
+        print("    AKAZE FEATURES: -> " + str(len(noise_kp_akaze)))
+        y_akaze_features.append(len(noise_kp_akaze))
+        print("    ORB FEATURES: -> " + str(len(noise_kp_orb)))
+        y_orb_features.append(len(noise_kp_orb))
+        print("    All matches SIFT : -> " + str(len(matches_sift)))
+        y_sift_all_matches.append(len(matches_sift))
+        print("    Positive matches SIFT: -> " + str(num_positive_matches_sift))
+        y_sift_positive_matches.append(num_positive_matches_sift)
+        print("    All matches KAZE : -> " + str(len(matches_kaze)))
+        y_kaze_all_matches.append(len(matches_kaze))
+        print("    Positive matches KAZE: -> " + str(num_positive_matches_kaze))
+        y_kaze_positive_matches.append(num_positive_matches_kaze)
+        print("    All matches AKAZE : -> " + str(len(matches_akaze)))
+        y_akze_all_matches.append(len(matches_akaze))
+        print("    Positive matches AKAZE: -> " + str(num_positive_matches_akaze))
+        y_akaze_positive_matches.append(num_positive_matches_akaze)
+        print("    All matches ORB : -> " + str(len(matches_orb)))
+        y_orb_all_matches.append(len(matches_orb))
+        print("    Positive matches ORB: -> " + str(num_positive_matches_orb))
+        y_orb_positive_matches.append(num_positive_matches_orb)
+        if i == 9:
+            fig, ax = plt.subplots()
+            ax.plot(x, y_sift_features, label='sift features')
+            ax.plot(x, y_kaze_features, label='kaze features')
+            ax.plot(x, y_akaze_features, label='akaze features')
+            ax.plot(x, y_orb_features, label='orb features')
+            ax.legend()
+            # Set labels for the x and y axes
+            ax.set_xlabel('Data loss augmentation')
+            ax.set_ylabel('Detected features')
+            # Set a title for the plot
+            ax.set_title('Detected features over data loss')
+            plt.savefig('features_image' + str(n) + '.png')
+            plt.clf()
+            fig, ax = plt.subplots()
+            ax.plot(x, y_sift_all_matches, label='sift all matches')
+            ax.plot(x, y_kaze_all_matches, label='kaze all matches')
+            ax.plot(x, y_akze_all_matches, label='akaze all matches')
+            ax.plot(x, y_orb_all_matches, label='orb all matches')
+            ax.plot(x, y_sift_positive_matches, label='sift positive matches')
+            ax.plot(x, y_kaze_positive_matches, label='kaze positive matches')
+            ax.plot(x, y_akaze_positive_matches, label='akaze positive matches')
+            ax.plot(x, y_orb_positive_matches, label='orb positive matches')
+            ax.legend()
+            # Set labels for the x and y axes
+            ax.set_xlabel('Data loss augmentation')
+            ax.set_ylabel('Matches')
+            # Set a title for the plot
+            ax.set_title('Matches over data loss')
+            plt.savefig('matches_image' + str(n) + '.png')
+            plt.clf()
+            n = n + 1
+            i = 0
+            x = []
+            y_sift_features = []
+            y_kaze_features = []
+            y_akaze_features = []
+            y_orb_features = []
+
+            y_sift_all_matches = []
+            y_sift_positive_matches = []
+            y_kaze_all_matches = []
+            y_kaze_positive_matches = []
+            y_akze_all_matches = []
+            y_akaze_positive_matches = []
+            y_orb_all_matches = []
+            y_orb_positive_matches = []
+        else:
+            i = i + 1
 
 test_images_file_names = get_images_filenames('test_images')
 ref_images_file_names = get_images_filenames('ref_images')
 test_images_ = get_test_images(test_images_file_names)
 ref_images_ = get_ref_images(ref_images_file_names)
+noise_images = []
 for name, image in test_images_:
-    noise_images = []
     noise_images_ = simulate_noises(image)
     for noise in noise_images_:
         noise_images.append(noise)
 
 ref_images_kp_descr = detect_and_compute_key_points(ref_images_)
 noise_images_kp_descr = detect_and_compute_key_points(noise_images)
-matching = match_features(ref_images_kp_descr,noise_images_kp_descr)
-pos_matching = positive_matches(matching)
-
-len(noise_images)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+matching = match_features(ref_images_kp_descr, noise_images_kp_descr)
+positives = positive_matches(matching)
+plot_results(positives)
 
